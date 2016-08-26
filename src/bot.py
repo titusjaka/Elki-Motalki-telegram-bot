@@ -11,8 +11,14 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 start_message = """Привет, дружок! Я могу рассказать тебе о ближайших турах Елок Моталок. Если тебе интересно, напиши "туры".
 Я пока что совсем маленький и многого не умею, но я учусь!"""
-schedule = get_schedule()
 
+
+def pretify_schdeule(schedule):
+    schedule_list = []
+    for tour in schedule:
+        tour_string = ("Тур: {name}, едем {date}.\n{description}").format(**tour)
+        schedule_list.append(tour_string)
+    return schedule_list
 
 @bot.message_handler(commands=["start", "help"])
 def start_and_help(message):
@@ -24,10 +30,15 @@ def start_and_help(message):
 @bot.message_handler(regexp=".*(?i)(туры|tour).*")
 def send_tour_info(message):
     hider = telebot.types.ReplyKeyboardHide()
-    bot.send_message(message.chat.id, 'Сейчас подумаю...')
-    time.sleep(1)
-    for sch in schedule:
-        bot.send_message(message.chat.id, sch, reply_markup=hider)
+    bot.send_message(message.chat.id, 'Сейчас подумаю...', reply_markup=hider)
+    schedule = get_schedule()
+    if not schedule:
+        bot.send_message(message.chat.id, "Кажется, какой-то жулик украл все наше расписание. Но мы его уже ищем!")
+        return
+    pretty_messages = pretify_schdeule(schedule)
+    bot.send_message(message.chat.id, "Наши ближайшие туры:\n====================")
+    for sch in pretty_messages:
+        bot.send_message(message.chat.id, '{0}\n----'.format(sch))
         time.sleep(2)
 
 
