@@ -29,7 +29,7 @@ def pretify_schdeule(schedule, user_uuid=None):
 
 @bot.message_handler(commands=["start", "help"])
 def start_and_help(message):
-    response_markup = telebot.types.ReplyKeyboardMarkup()
+    response_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     response_markup.add("Туры")
     bot.send_message(message.chat.id, start_message, reply_markup=response_markup)
     botan.track(BOTAN_TOKEN, message.from_user, message, "Start")
